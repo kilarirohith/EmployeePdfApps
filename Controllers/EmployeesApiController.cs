@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeCrudPdf.Controllers
 {
-    /// <summary>Employee endpoints (per-user).</summary>
+    
     [ApiController]
     [Authorize]
     [Route("api/employees")]
@@ -91,4 +91,5 @@ namespace EmployeeCrudPdf.Controllers
         }
     }
 }
+
 
