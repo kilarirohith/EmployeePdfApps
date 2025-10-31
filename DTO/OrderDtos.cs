@@ -2,7 +2,7 @@
 
 namespace EmployeeCrudPdf.Dtos
 {
-    /// <summary>Create order with items. If price is omitted, current product price is used.</summary>
+    
     public class OrderCreateDto
     {
         public List<OrderCreateItemDto> Items { get; set; } = new();
@@ -12,11 +12,11 @@ namespace EmployeeCrudPdf.Dtos
     {
         [Required] public int ProductId { get; set; }
         [Range(1, 1_000_000)] public int Qty { get; set; }
-        /// <summary>Optional override price; if 0 or omitted, system uses product price.</summary>
+        
         public decimal? Price { get; set; }
     }
 
-    /// <summary>Order read shape.</summary>
+    
     public class OrderReadDto
     {
         public int Id { get; set; }
@@ -36,7 +36,7 @@ namespace EmployeeCrudPdf.Dtos
         public decimal LineTotal => Qty * Price;
     }
 
-    /// <summary>List row for order lists.</summary>
+    
     public class OrderListItemDto
     {
         public int Id { get; set; }
@@ -46,3 +46,4 @@ namespace EmployeeCrudPdf.Dtos
         public int ItemsCount { get; set; }
     }
 }
+
