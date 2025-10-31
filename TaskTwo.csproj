@@ -1,0 +1,31 @@
+<!-- File: TaskTwo/TaskTwo.csproj -->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>EmployeeCrudPdf</RootNamespace>
+    <AssemblyName>EmployeeCrudPdf</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Do NOT reference Microsoft.AspNetCore.Authentication.Cookies (part of shared framework) -->
+    <PackageReference Include="Dapper" Version="2.1.42" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
+    <!-- Use a stable version; 10.0.0 stable isn't on NuGet yet -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <!-- Latest on NuGet is 1.4.0 -->
+    <PackageReference Include="Rotativa.AspNetCore" Version="1.4.0" />
+  </ItemGroup>
+
+  <!-- If you DO need Azure AD, uncomment the two below and keep them patched
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
+  </ItemGroup>
+  -->
+</Project>

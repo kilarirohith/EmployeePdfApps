@@ -1,0 +1,17 @@
+@model EmployeeCrudPdf.Models.Product
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">Product #@Model.Id</h3>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+        <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+      </div>
+    </div>
+    <dl class="row">
+      <dt class="col-sm-3">Name</dt><dd class="col-sm-9">@Model.Name</dd>
+      <dt class="col-sm-3">Price</dt><dd class="col-sm-9">@Model.Price.ToString("C")</dd>
+      <dt class="col-sm-3">Category</dt><dd class="col-sm-9">@Model.Category</dd>
+    </dl>
+  </div>
+</div>

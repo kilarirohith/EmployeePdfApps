@@ -1,0 +1,35 @@
+@model EmployeeCrudPdf.Models.Employee
+@{ Layout = null; }
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Employee #@Model.Id</title>
+  <style>
+    html,body{margin:0;padding:0;color:#0f172a;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+    .page{width:780px;margin:28px auto}
+    .card{border:1px solid #e2e8f0;border-radius:12px;background:#fff}
+    .card-header{padding:14px 18px;background:#f7f7fb;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between}
+    .card-body{padding:18px}
+    .grid{display:grid;grid-template-columns:220px 1fr;gap:8px 18px}
+    .label{color:#334155;font-weight:600;font-size:13px}
+    .value{padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <div class="card-header"><strong>Employee Report</strong> <span>Generated: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</span></div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="label">ID</div><div class="value">@Model.Id</div>
+          <div class="label">Name</div><div class="value">@Model.Name</div>
+          <div class="label">Department</div><div class="value">@Model.Department</div>
+          <div class="label">Email</div><div class="value">@Model.Email</div>
+          <div class="label">Salary</div><div class="value">@Model.Salary.ToString("C")</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

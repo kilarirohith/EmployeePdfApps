@@ -1,0 +1,23 @@
+@model EmployeeCrudPdf.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+<h2>Login</h2>
+<form asp-action="Login" method="post" class="vstack gap-3">
+    @Html.AntiForgeryToken()
+    <div>
+        <label class="form-label">Username or Email</label>
+        <input asp-for="UsernameOrEmail" class="form-control" />
+        <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
+    </div>
+    <div>
+        <label class="form-label">Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <input type="hidden" asp-for="ReturnUrl" />
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Login</button>
+      <a asp-action="Register" class="btn btn-outline-secondary">Create an account</a>
+    </div>
+</form>
