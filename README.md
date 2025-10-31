@@ -1,103 +1,124 @@
-# 🧩 Employee Management CRUD System
+# EmployeeCrudPdf – README
 
-A full-stack web application that allows users to **register, log in, and perform CRUD operations** (Create, Read, Update, Delete) on employee and product data.  
-It is built with **ASP.NET Core MVC**, **Entity Framework / Dapper**, and **SQL Server**, following a **layered (clean) architecture**.
+A small ASP.NET Core MVC + Web API app that demonstrates:
+- **Login & Registration** (cookie for MVC, **JWT in a cookie** for APIs)
+- **SQL Server** persistence (Dapper)
+- **REST APIs** for Employees, Products, Orders with **Swagger**
+- **Validation** (DataAnnotations on the server + unobtrusive client validation)
+- **Pagination & Search** (keyword filter + paging)
 
----
-
-## 🚀 Features
-
-- 🔐 User authentication (Login / Register)
-- 👨‍💼 Employee management (Add, View, Edit, Delete)
-- 📦 Product management with search & pagination
-- 📄 PDF report generation
-- 🧱 Clean layered architecture (Controller → Repository → Database)
-- 🗃 SQL Server integration using Dapper / EF
-- 🎨 Simple and responsive Razor-based UI
+> Target Framework: **.NET 10 (preview)** or **.NET 8**  
+> Packages: Dapper, Microsoft.Data.SqlClient, JwtBearer (8.x), BCrypt.Net-Next, Swashbuckle, Rotativa.AspNetCore (1.4.0)
 
 ---
 
-## 🗂 Project Structure
-EmployeeCrudPdf/
-│
-├── Controllers/
-│ ├── AccountController.cs # Handles Login, Register, Logout
-│ ├── EmployeesController.cs # Handles Employee CRUD operations
-│ └── ProductsController.cs # Handles Product CRUD, search, pagination
-│
-├── Models/
-│ ├── Employee.cs # Employee entity
-│ ├── Product.cs # Product entity
-│ ├── User.cs # User entity for authentication
-│
-├── Data/
-│ ├── IEmployeeRepository.cs # Interface for Employee data access
-│ ├── IProductRepository.cs # Interface for Product data access
-│ ├── EmployeeRepository.cs # Dapper implementation for Employee
-│ ├── ProductRepository.cs # Dapper implementation for Product
-│ ├── ApplicationDbContext.cs # EF context (optional)
-│
-├── Views/
-│ ├── Account/ # Login, Register pages
-│ ├── Employees/ # Index, Create, Edit, Delete
-│ ├── Products/ # Index, Create, Edit, Delete
-│ └── Shared/ # Layout and partial views
-│
-├── wwwroot/ # Static assets (CSS, JS, images)
-│
-├── appsettings.json # DB connection string
-├── Program.cs # Application entry point
-├── Startup.cs # Middleware, routing, dependency injection
-└── README.md
-- **Controllers** handle requests and responses.
-- **Repositories** abstract database logic (using Dapper / EF).
-- **Models** represent data entities.
-- **Views** render UI.
-- **Dependency Injection** is used to inject repository interfaces into controllers.
+## 1) Login & Registration Module
+
+### What’s implemented
+- **Register**: creates a user with `BCrypt` password hashing.
+- **Login**: issues a **cookie** (for MVC access) **and** a **JWT** stored in an `access_token` **cookie** (read by the API `JwtBearer` handler).
+- **Logout**: clears session, deletes cookies, and signs the user out.
+
+### How to use (step-by-step)
+1. **Run the app** (see “Setup & Run” below).
+2. In a browser, open `https://localhost:<port>/AccountMvc/Register` and create a user.
+3. Then go to `https://localhost:<port>/AccountMvc/Login`, sign in.
+   - This sets both:  
+     - Cookie for MVC pages  
+     - JWT cookie `access_token` for Swagger/API
+4. Now open `https://localhost:<port>/swagger`. You can invoke protected API endpoints; the **JwtBearer** handler reads the token from the **cookie** automatically.
+
+> **Note**  
+> The “login/logout via Swagger” flow here is implemented by **logging in via the MVC page** which sets the JWT cookie that Swagger uses automatically. If you prefer a pure API login/logout (POST `/api/auth/login|logout`), you can add a minimal Auth API later; the rest of this project is already wired for JWT.
 
 ---
 
-## 🧱 Class-to-Class Mapping (Implementation Overview)
+## 2) API Creation (+ Swagger)
 
-| Layer         | Class / File                      | Responsibility                                                            | Depends On                     |
-|----------------|----------------------------------|---------------------------------------------------------------------------|--------------------------------|
-| Controller     | `AccountController.cs`           | Handles Login, Register, and Logout.                                      | `UserRepository`, `Session`    |
-| Controller     | `EmployeesController.cs`         | CRUD for Employee; uses repository methods.                               | `IEmployeeRepository`          |
-| Controller     | `ProductsController.cs`          | CRUD + Search + Pagination for Products.                                  | `IProductRepository`           |
-| Repository     | `EmployeeRepository.cs`          | Database CRUD logic for Employee table.                                   | Dapper / SQL Connection        |
-| Repository     | `ProductRepository.cs`           | Database CRUD logic for Product table.                                    | Dapper / SQL Connection        |
-| Model          | `Employee.cs`                    | Defines Employee properties (Id, Name, Email, Salary, etc.)               | —                              |
-| Model          | `Product.cs`                     | Defines Product properties (Id, Name, Category, Price, etc.)              | —                              |
-| Model          | `User.cs`                        | Defines user for authentication (Id, Username, Password).                 | —                              |
-| View           | `Views/Employees/Index.cshtml`   | Displays list of employees.                                               | `EmployeesController`          |
-| View           | `Views/Products/Index.cshtml`    | Displays list of products with pagination and search bar.                 | `ProductsController`           |
+### Base URL
+`https://localhost:<port>/api`
+
+### Employees
+- `GET /api/employees?q=&page=1&pageSize=10` – list (paged + search)
+- `GET /api/employees/{id}` – get by id
+- `POST /api/employees` – create
+- `PUT /api/employees/{id}` – update
+- `DELETE /api/employees/{id}` – delete
+
+### Products
+- `GET /api/products?q=&page=1&pageSize=10`
+- `GET /api/products/{id}`
+- `POST /api/products`
+- `PUT /api/products/{id}`
+- `DELETE /api/products/{id}`
+
+### Orders
+- `GET /api/orders?q=&page=1&pageSize=10` – list orders (totals computed)
+- `GET /api/orders/{id}` – get with items
+- `POST /api/orders` – create order with items
+- `POST /api/orders/{id}/items` – add item
+- `DELETE /api/orders/{id}` – delete order
+- `DELETE /api/orders/{orderId}/items/{itemId}` – delete item
+
+### Swagger
+- Open `https://localhost:<port>/swagger`
+- XML comments are enabled; an `X-Correlation-Id` response header is documented.
+- Security: a `cookieAuth` scheme is defined so Swagger calls include your `access_token` cookie (set at Login).
 
 ---
 
-## 🧰 Technologies Used
+## 3) Form Validation
 
-| Layer | Technology |
-|-------|-------------|
-| Backend | ASP.NET Core MVC, C# |
-| Database | SQL Server (LocalDB or SSMS connection) |
-| ORM / Data Access | Dapper or Entity Framework Core |
-| Frontend | Razor Views, Bootstrap |
-| Authentication | ASP.NET Core Session & Cookie Auth |
-| PDF Generation | Rotativa / iTextSharp (optional) |
-| Tools | Visual Studio 2022, SSMS |
+### Server-side
+- All DTOs and MVC models use **DataAnnotations** (e.g., `[Required]`, `[EmailAddress]`, `[Range]`, `[StringLength]`).
+- Controllers check `ModelState` before saving and return appropriate HTTP codes.
+
+### Client-side
+- MVC views reference **jQuery Validate + Unobtrusive** scripts.
+- Input fields use `asp-for` and validation helpers (`asp-validation-for`) to surface inline messages.
+
+Result: **same rules** enforced on the server and reflected on the client.
 
 ---
 
-## ⚙️ Setup & Configuration
+## 4) Pagination & Search (with clear explanation)
 
-### Prerequisites
-- **Visual Studio 2022 or later**
-- **SQL Server / SSMS**
-- **.NET 6 or later**
+### What we did
+- **Keyword search:** single `q` parameter matched with `LIKE` on relevant columns.  
+  - Employees: name/department/email  
+  - Products: name/category  
+  - Orders: order number
+- **Pagination:** `page` (1-based) and `pageSize` with `OFFSET … FETCH` in SQL.
 
-### Steps
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/<your-username>/EmployeeCrudPdf.git
-   cd EmployeeCrudPdf
+### Why this approach
+- **Performance & correctness**: Filtering and paging are pushed down to SQL (Dapper), which is efficient for large datasets.
+- **LINQ parity**: The LINQ alternative (fetch all, then filter in memory) is trivial but **not scalable**. For production, **SQL-side filtering** is preferred.  
+  If you want a toggle to compare approaches, it’s easy to add a `useLinq=true` query param that:
+  1) loads all rows for a user,
+  2) applies `Where/Skip/Take` in LINQ,
+  3) returns the paged subset.
 
+> Summary: We implemented **server-side** paging/search for scalability and documented how/why a LINQ variant could be wired if needed for demo purposes.
+
+---
+
+## Setup & Run
+
+### Prereqs
+- .NET SDK **10 preview** (or **8**)
+- **SQL Server** (local dev is fine)
+- **SSMS** to run the schema script below
+
+### 1) Configure `appsettings.json`
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=EmployeeCrudDb;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;"
+  },
+  "Jwt": {
+    "Key": "dev-only-please-change-this-very-long-secret-key",
+    "Issuer": "EmployeeCrudPdf",
+    "Audience": "EmployeeCrudPdf",
+    "ExpiresHours": "8"
+  }
+}
