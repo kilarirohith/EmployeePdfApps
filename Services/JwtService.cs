@@ -22,7 +22,7 @@ namespace EmployeeCrudPdf.Services
                 new(JwtRegisteredClaimNames.Sub, user.Username),
                 new(JwtRegisteredClaimNames.Email, user.Email),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                // add role claims if you need roles: new(ClaimTypes.Role, "Admin")
+                
             };
 
             var token = new JwtSecurityToken(
@@ -37,3 +37,4 @@ namespace EmployeeCrudPdf.Services
         }
     }
 }
+
