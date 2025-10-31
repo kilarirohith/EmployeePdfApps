@@ -15,10 +15,7 @@ namespace EmployeeCrudPdf.Controllers
         private readonly IEmployeeRepository _repo;
         public EmployeesApiController(IEmployeeRepository repo) => _repo = repo;
 
-        /// <summary>List employees with pagination and keyword search.</summary>
-        /// <param name="q">Keyword against name/department/email.</param>
-        /// <param name="page">1-based page index.</param>
-        /// <param name="pageSize">Page size.</param>
+       
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<EmployeeReadDto>), 200)]
         public async Task<IActionResult> List([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
@@ -38,7 +35,7 @@ namespace EmployeeCrudPdf.Controllers
             return Ok(dto);
         }
 
-        /// <summary>Create employee.</summary>
+       
         [HttpPost]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(EmployeeReadDto), 201)]
@@ -56,7 +53,7 @@ namespace EmployeeCrudPdf.Controllers
             return CreatedAtAction(nameof(Get), new { id = read.Id }, read);
         }
 
-        /// <summary>Get employee by id.</summary>
+        
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(EmployeeReadDto), 200)]
         [ProducesResponseType(404)]
@@ -67,7 +64,7 @@ namespace EmployeeCrudPdf.Controllers
             return Ok(new EmployeeReadDto { Id = e.Id, Name = e.Name, Department = e.Department, Email = e.Email, Salary = e.Salary });
         }
 
-        /// <summary>Update employee.</summary>
+        
         [HttpPut("{id:int}")]
         [Consumes("application/json")]
         [ProducesResponseType(204)]
@@ -82,7 +79,7 @@ namespace EmployeeCrudPdf.Controllers
             return NoContent();
         }
 
-        /// <summary>Delete employee.</summary>
+        
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -94,3 +91,4 @@ namespace EmployeeCrudPdf.Controllers
         }
     }
 }
+
