@@ -1,0 +1,29 @@
+@model EmployeeCrudPdf.Models.Order
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Order @Model.OrderNo</h3>
+  <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+</div>
+
+<div class="mb-2 text-muted">Created @Model.CreatedAt.ToLocalTime()</div>
+
+<table class="table table-sm table-striped">
+  <thead><tr><th>#</th><th>Product</th><th>Category</th><th class="text-end">Qty</th><th class="text-end">Price</th><th class="text-end">Line Total</th></tr></thead>
+  <tbody>
+  @foreach (var i in Model.Items)
+  {
+    <tr>
+      <td>@i.Id</td>
+      <td>@i.ProductName (@i.ProductId)</td>
+      <td>@i.Category</td>
+      <td class="text-end">@i.Qty</td>
+      <td class="text-end">@i.Price.ToString("C")</td>
+      <td class="text-end">@((i.Price*i.Qty).ToString("C"))</td>
+    </tr>
+  }
+  </tbody>
+  <tfoot>
+    <tr><th colspan="5" class="text-end">TOTAL</th><th class="text-end">@Model.Total.ToString("C")</th></tr>
+  </tfoot>
+</table>
+
+<p class="text-muted">To add/remove items, use <a href="/swagger">Swagger</a> endpoints for now.</p>
