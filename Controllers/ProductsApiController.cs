@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeCrudPdf.Controllers
 {
-    /// <summary>Product endpoints (per-user).</summary>
+   
     [ApiController]
     [Authorize]
     [Route("api/products")]
@@ -15,8 +15,7 @@ namespace EmployeeCrudPdf.Controllers
         private readonly IProductRepository _repo;
         public ProductsApiController(IProductRepository repo) => _repo = repo;
 
-        /// <summary>List products with pagination and keyword search.</summary>
-        /// <param name="q">Keyword against name/category.</param>
+      
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<ProductReadDto>), 200)]
         public async Task<IActionResult> List([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
@@ -80,3 +79,4 @@ namespace EmployeeCrudPdf.Controllers
         }
     }
 }
+
