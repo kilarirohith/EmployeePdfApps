@@ -3,7 +3,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace EmployeeCrudPdf.Swagger
 {
-    /// <summary>Adds X-Correlation-Id response header to all operations.</summary>
+   
     public sealed class CorrelationIdOperationFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
@@ -25,3 +25,4 @@ namespace EmployeeCrudPdf.Swagger
         }
     }
 }
+
