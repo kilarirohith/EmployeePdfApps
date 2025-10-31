@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeCrudPdf.Controllers
 {
-    /// <summary>Order endpoints (per-user).</summary>
+    
     [ApiController]
     [Authorize]
     [Route("api/orders")]
@@ -20,7 +20,7 @@ namespace EmployeeCrudPdf.Controllers
             _orders = orders; _products = products;
         }
 
-        /// <summary>List orders with pagination and keyword search on order number.</summary>
+        
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<OrderListItemDto>), 200)]
         public async Task<IActionResult> List([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
@@ -43,7 +43,7 @@ namespace EmployeeCrudPdf.Controllers
             return Ok(dto);
         }
 
-        /// <summary>Create an order with line items. Price defaults to current product price if omitted.</summary>
+        
         [HttpPost]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(OrderReadDto), 201)]
@@ -75,7 +75,7 @@ namespace EmployeeCrudPdf.Controllers
             return CreatedAtAction(nameof(Get), new { id = order.Id }, dto);
         }
 
-        /// <summary>Get an order by id (with items).</summary>
+        
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(OrderReadDto), 200)]
         [ProducesResponseType(404)]
@@ -96,7 +96,7 @@ namespace EmployeeCrudPdf.Controllers
             });
         }
 
-        /// <summary>Add a single item to an existing order.</summary>
+        
         [HttpPost("{id:int}/items")]
         [Consumes("application/json")]
         [ProducesResponseType(204)]
@@ -110,7 +110,7 @@ namespace EmployeeCrudPdf.Controllers
             return NoContent();
         }
 
-        /// <summary>Delete an order.</summary>
+       
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -121,7 +121,7 @@ namespace EmployeeCrudPdf.Controllers
             return NoContent();
         }
 
-        /// <summary>Delete an order item by id.</summary>
+        
         [HttpDelete("{orderId:int}/items/{itemId:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -133,3 +133,4 @@ namespace EmployeeCrudPdf.Controllers
         }
     }
 }
+
