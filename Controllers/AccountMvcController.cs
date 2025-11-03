@@ -2,10 +2,10 @@
 using EmployeeCrudPdf.Data;
 using EmployeeCrudPdf.Models;
 using EmployeeCrudPdf.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace EmployeeCrudPdf.Controllers
@@ -16,14 +16,10 @@ namespace EmployeeCrudPdf.Controllers
         private readonly IJwtService _jwt;
 
         public AccountMvcController(IUserRepository users, IJwtService jwt)
-        {
-            _users = users;
-            _jwt = jwt;
-        }
+        { _users = users; _jwt = jwt; }
 
         [HttpGet, AllowAnonymous]
-        public IActionResult Login(string? returnUrl = null)
-            => View(new LoginViewModel { ReturnUrl = returnUrl });
+        public IActionResult Login(string? returnUrl = null) => View(new LoginViewModel { ReturnUrl = returnUrl });
 
         [HttpPost, ValidateAntiForgeryToken, AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel vm)
@@ -47,23 +43,15 @@ namespace EmployeeCrudPdf.Controllers
                 new(ClaimTypes.Name, user.Username),
                 new(ClaimTypes.Email, user.Email)
             };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
-                });
+            var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+                new AuthenticationProperties { IsPersistent = true, ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8) });
 
             var token = _jwt.CreateToken(user);
             Response.Cookies.Append("access_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, // set true on HTTPS
+                Secure = false, // true on HTTPS
                 SameSite = SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddHours(8),
                 IsEssential = true
@@ -110,9 +98,8 @@ namespace EmployeeCrudPdf.Controllers
                 new(ClaimTypes.Name, user.Username),
                 new(ClaimTypes.Email, user.Email)
             };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity),
+                new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)),
                 new AuthenticationProperties { IsPersistent = true, ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8) });
 
             var token = _jwt.CreateToken(user);
@@ -131,6 +118,7 @@ namespace EmployeeCrudPdf.Controllers
             HttpContext.Session.Clear();
             if (Request.Cookies.ContainsKey("access_token"))
                 Response.Cookies.Delete("access_token");
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }

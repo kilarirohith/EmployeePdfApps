@@ -2,12 +2,13 @@
 using EmployeeCrudPdf.Dtos;
 using EmployeeCrudPdf.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeCrudPdf.Controllers
 {
     [ApiController]
-    [Authorize(AuthenticationSchemes = "JwtBearer")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/products")]
     public class ProductsApiController : ControllerBase
     {
@@ -15,12 +16,12 @@ namespace EmployeeCrudPdf.Controllers
         public ProductsApiController(IProductRepository repo) => _repo = repo;
 
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResult<ProductReadDto>), 200)]
         public async Task<IActionResult> List([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var uid = HttpContext.RequireUserId();
             var rows = await _repo.GetAllAsync(uid, q, page, pageSize);
             var total = await _repo.CountAsync(uid, q);
+
             var dto = new PagedResult<ProductReadDto>
             {
                 Items = rows.Select(p => new ProductReadDto { Id = p.Id, Name = p.Name, Price = p.Price, Category = p.Category }),
@@ -30,8 +31,6 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpPost]
-        [Consumes("application/json")]
-        [ProducesResponseType(typeof(ProductReadDto), 201)]
         public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
         {
             var uid = HttpContext.RequireUserId();
@@ -41,7 +40,6 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpGet("{id:int}")]
-        [ProducesResponseType(typeof(ProductReadDto), 200)]
         public async Task<IActionResult> Get(int id)
         {
             var uid = HttpContext.RequireUserId();
@@ -50,8 +48,6 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Consumes("application/json")]
-        [ProducesResponseType(204)]
         public async Task<IActionResult> Update(int id, [FromBody] ProductCreateDto dto)
         {
             var uid = HttpContext.RequireUserId();
@@ -60,7 +56,6 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)
         {
             var uid = HttpContext.RequireUserId();

@@ -7,19 +7,41 @@ using Rotativa.AspNetCore.Options;
 
 namespace EmployeeCrudPdf.Controllers
 {
-    [Authorize] // cookie-protected
+    [Authorize] // cookie (default)
     public class EmployeesController : Controller
     {
         private readonly IEmployeeRepository _repo;
         public EmployeesController(IEmployeeRepository repo) => _repo = repo;
 
-        public async Task<IActionResult> Index(string? q, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string? q, int page = 1, int pageSize = 10, bool useLinq = false)
         {
             var userId = HttpContext.RequireUserId();
-            var items = await _repo.GetAllAsync(userId, q, page, pageSize);
-            var total = await _repo.CountAsync(userId, q);
-            ViewBag.Query = q; ViewBag.Page = page; ViewBag.PageSize = pageSize; ViewBag.Total = total;
-            return View(items);
+
+            if (useLinq)
+            {
+                var all = await _repo.GetAllAsync(userId);
+                var kw = (q ?? "").Trim().ToLowerInvariant();
+                var query = all.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(kw))
+                {
+                    query = query.Where(e =>
+                        (e.Name ?? "").ToLower().Contains(kw) ||
+                        (e.Department ?? "").ToLower().Contains(kw) ||
+                        (e.Email ?? "").ToLower().Contains(kw));
+                }
+                var total = query.Count();
+                var items = query.OrderByDescending(e => e.Id).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                ViewBag.Query = q; ViewBag.Page = page; ViewBag.PageSize = pageSize; ViewBag.Total = total; ViewBag.UseLinq = true;
+                return View(items);
+            }
+            else
+            {
+                var items = await _repo.GetAllAsync(userId, q, page, pageSize);
+                var total = await _repo.CountAsync(userId, q);
+                ViewBag.Query = q; ViewBag.Page = page; ViewBag.PageSize = pageSize; ViewBag.Total = total; ViewBag.UseLinq = false;
+                return View(items);
+            }
         }
 
         public async Task<IActionResult> Details(int id)
@@ -37,7 +59,6 @@ namespace EmployeeCrudPdf.Controllers
             if (!ModelState.IsValid) return View(emp);
             var userId = HttpContext.RequireUserId();
             var id = await _repo.CreateAsync(userId, emp);
-            TempData["ok"] = "Employee created.";
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -55,7 +76,6 @@ namespace EmployeeCrudPdf.Controllers
             if (!ModelState.IsValid) return View(emp);
             var userId = HttpContext.RequireUserId();
             await _repo.UpdateAsync(userId, emp);
-            TempData["ok"] = "Employee updated.";
             return RedirectToAction(nameof(Details), new { id = emp.Id });
         }
 
@@ -71,7 +91,6 @@ namespace EmployeeCrudPdf.Controllers
         {
             var userId = HttpContext.RequireUserId();
             await _repo.DeleteAsync(userId, id);
-            TempData["ok"] = "Employee deleted.";
             return RedirectToAction(nameof(Index));
         }
 

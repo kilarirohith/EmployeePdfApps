@@ -2,12 +2,13 @@
 using EmployeeCrudPdf.Dtos;
 using EmployeeCrudPdf.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeCrudPdf.Controllers
 {
     [ApiController]
-    [Authorize(AuthenticationSchemes = "JwtBearer")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/employees")]
     public class EmployeesApiController : ControllerBase
     {
@@ -15,12 +16,12 @@ namespace EmployeeCrudPdf.Controllers
         public EmployeesApiController(IEmployeeRepository repo) => _repo = repo;
 
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResult<EmployeeReadDto>), 200)]
         public async Task<IActionResult> List([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var uid = HttpContext.RequireUserId();
             var rows = await _repo.GetAllAsync(uid, q, page, pageSize);
             var total = await _repo.CountAsync(uid, q);
+
             var dto = new PagedResult<EmployeeReadDto>
             {
                 Items = rows.Select(e => new EmployeeReadDto { Id = e.Id, Name = e.Name, Department = e.Department, Email = e.Email, Salary = e.Salary }),
@@ -30,19 +31,16 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpPost]
-        [Consumes("application/json")]
-        [ProducesResponseType(typeof(EmployeeReadDto), 201)]
-        public async Task<IActionResult> Create([FromBody] EmployeeCreateDto body)
+        public async Task<IActionResult> Create([FromBody] EmployeeCreateDto dto)
         {
             var uid = HttpContext.RequireUserId();
-            var id = await _repo.CreateAsync(uid, new Employee { Name = body.Name, Department = body.Department, Email = body.Email, Salary = body.Salary });
-            var e = await _repo.GetByIdAsync(uid, id);
-            return CreatedAtAction(nameof(Get), new { id = e.Id },
-                new EmployeeReadDto { Id = e.Id, Name = e.Name, Department = e.Department, Email = e.Email, Salary = e.Salary });
+            var id = await _repo.CreateAsync(uid, new Employee { Name = dto.Name, Department = dto.Department, Email = dto.Email, Salary = dto.Salary });
+            var created = await _repo.GetByIdAsync(uid, id);
+            var read = new EmployeeReadDto { Id = created.Id, Name = created.Name, Department = created.Department, Email = created.Email, Salary = created.Salary };
+            return CreatedAtAction(nameof(Get), new { id = read.Id }, read);
         }
 
         [HttpGet("{id:int}")]
-        [ProducesResponseType(typeof(EmployeeReadDto), 200)]
         public async Task<IActionResult> Get(int id)
         {
             var uid = HttpContext.RequireUserId();
@@ -51,17 +49,14 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Consumes("application/json")]
-        [ProducesResponseType(204)]
-        public async Task<IActionResult> Update(int id, [FromBody] EmployeeCreateDto body)
+        public async Task<IActionResult> Update(int id, [FromBody] EmployeeCreateDto dto)
         {
             var uid = HttpContext.RequireUserId();
-            await _repo.UpdateAsync(uid, new Employee { Id = id, Name = body.Name, Department = body.Department, Email = body.Email, Salary = body.Salary });
+            await _repo.UpdateAsync(uid, new Employee { Id = id, Name = dto.Name, Department = dto.Department, Email = dto.Email, Salary = dto.Salary });
             return NoContent();
         }
 
         [HttpDelete("{id:int}")]
-        [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)
         {
             var uid = HttpContext.RequireUserId();

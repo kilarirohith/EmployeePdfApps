@@ -2,12 +2,13 @@
 using EmployeeCrudPdf.Dtos;
 using EmployeeCrudPdf.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeCrudPdf.Controllers
 {
     [ApiController]
-    [Authorize(AuthenticationSchemes = "JwtBearer")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/orders")]
     public class OrdersApiController : ControllerBase
     {
@@ -15,12 +16,9 @@ namespace EmployeeCrudPdf.Controllers
         private readonly IProductRepository _products;
 
         public OrdersApiController(IOrderRepository orders, IProductRepository products)
-        {
-            _orders = orders; _products = products;
-        }
+        { _orders = orders; _products = products; }
 
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResult<OrderListItemDto>), 200)]
         public async Task<IActionResult> List([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var uid = HttpContext.RequireUserId();
@@ -29,18 +27,13 @@ namespace EmployeeCrudPdf.Controllers
             var dto = new PagedResult<OrderListItemDto>
             {
                 Items = items.Select(o => new OrderListItemDto
-                {
-                    Id = o.Id, OrderNo = o.OrderNo, CreatedAt = o.CreatedAt,
-                    Total = o.Total, ItemsCount = o.Items.Count
-                }),
+                { Id = o.Id, OrderNo = o.OrderNo, CreatedAt = o.CreatedAt, Total = o.Total, ItemsCount = o.Items.Count }),
                 TotalCount = total, Page = page, PageSize = pageSize
             };
             return Ok(dto);
         }
 
         [HttpPost]
-        [Consumes("application/json")]
-        [ProducesResponseType(typeof(OrderReadDto), 201)]
         public async Task<IActionResult> Create([FromBody] OrderCreateDto body)
         {
             var uid = HttpContext.RequireUserId();
@@ -59,15 +52,12 @@ namespace EmployeeCrudPdf.Controllers
             {
                 Id = order.Id, OrderNo = order.OrderNo, CreatedAt = order.CreatedAt, Total = order.Total,
                 Items = order.Items.Select(i => new OrderItemReadDto
-                {
-                    Id = i.Id, ProductId = i.ProductId, ProductName = i.ProductName, Qty = i.Qty, Price = i.Price
-                }).ToList()
+                { Id = i.Id, ProductId = i.ProductId, ProductName = i.ProductName, Qty = i.Qty, Price = i.Price }).ToList()
             };
             return CreatedAtAction(nameof(Get), new { id = order.Id }, dto);
         }
 
         [HttpGet("{id:int}")]
-        [ProducesResponseType(typeof(OrderReadDto), 200)]
         public async Task<IActionResult> Get(int id)
         {
             var uid = HttpContext.RequireUserId();
@@ -76,15 +66,11 @@ namespace EmployeeCrudPdf.Controllers
             {
                 Id = order.Id, OrderNo = order.OrderNo, CreatedAt = order.CreatedAt, Total = order.Total,
                 Items = order.Items.Select(i => new OrderItemReadDto
-                {
-                    Id = i.Id, ProductId = i.ProductId, ProductName = i.ProductName, Qty = i.Qty, Price = i.Price
-                }).ToList()
+                { Id = i.Id, ProductId = i.ProductId, ProductName = i.ProductName, Qty = i.Qty, Price = i.Price }).ToList()
             });
         }
 
         [HttpPost("{id:int}/items")]
-        [Consumes("application/json")]
-        [ProducesResponseType(204)]
         public async Task<IActionResult> AddItem(int id, [FromBody] OrderCreateItemDto body)
         {
             var uid = HttpContext.RequireUserId();
@@ -95,7 +81,6 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)
         {
             var uid = HttpContext.RequireUserId();
@@ -104,7 +89,6 @@ namespace EmployeeCrudPdf.Controllers
         }
 
         [HttpDelete("{orderId:int}/items/{itemId:int}")]
-        [ProducesResponseType(204)]
         public async Task<IActionResult> DeleteItem(int orderId, int itemId)
         {
             var uid = HttpContext.RequireUserId();

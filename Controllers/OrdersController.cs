@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeCrudPdf.Controllers
 {
-    [Authorize] // cookie-protected
+    [Authorize] // cookie (default)
     public class OrdersController : Controller
     {
         private readonly IOrderRepository _orders;
@@ -14,6 +14,7 @@ namespace EmployeeCrudPdf.Controllers
         {
             var uid = HttpContext.RequireUserId();
             var (items, total) = await _orders.ListAsync(uid, q, page, pageSize);
+
             ViewBag.Query = q; ViewBag.Page = page; ViewBag.PageSize = pageSize; ViewBag.Total = total;
             return View(items);
         }
